@@ -53,7 +53,6 @@ def add_watch(update: Update, context: CallbackContext):
         )
 
 
-
 def delete_watch(update: Update, context: CallbackContext):
     """Delete existing node watch"""
     ip = context.args[0]
@@ -79,6 +78,19 @@ def send_alerts(context: CallbackContext):
             alarm.alarm_sent = int(datetime.utcnow().timestamp())
             storage.upsert_node_watch(alarm)
 
+def help(update: Update, context: CallbackContext):
+    """Help command handler"""
+    commands = {
+        '/help': 'Get bot\'s commands',
+        '/start': 'Start chatting with bot',
+        '/add <ip>': 'Add your node\'s IP or host name to watcher',
+        '/del <ip>': 'Delete node watch',
+        '/watches': 'Get nodes\' statuses',
+    }
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, 
+        text='\n'.join(f'{command} - {description}' for command, description in commands.items())
+    )
 
 def run():
     updater = Updater(token=settings.TG_BOT_TOKEN, use_context=True)
@@ -86,6 +98,7 @@ def run():
     updater.dispatcher.add_handler(CommandHandler('watches', get_watches))
     updater.dispatcher.add_handler(CommandHandler('add', add_watch))
     updater.dispatcher.add_handler(CommandHandler('del', delete_watch))
+    updater.dispatcher.add_handler(CommandHandler('help', help))
     updater.job_queue.run_repeating(send_alerts, interval=600, first=10)
     updater.start_polling()
     updater.idle()
