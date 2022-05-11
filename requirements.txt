@@ -1,0 +1,5 @@
+python-telegram-bot==13.11
+supabase==0.5.6
+dataclasses-json==0.5.7
+prometheus-client==0.14.1
+requests==2.27.1
