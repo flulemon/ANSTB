@@ -1,7 +1,6 @@
 import logging
 from collections import defaultdict
 from datetime import datetime
-from turtle import up
 
 from telegram import Update
 from telegram.ext import CallbackContext, CommandHandler, Updater
