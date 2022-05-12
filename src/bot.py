@@ -82,8 +82,8 @@ def help(update: Update, context: CallbackContext):
     commands = {
         '/help': 'Get bot\'s commands',
         '/start': 'Start chatting with bot',
-        '/add <ip>': 'Add your node\'s IP or host name to watcher',
-        '/del <ip>': 'Delete node watch',
+        '/add <ip>': 'Add your node\'s IP or host name to watcher (e.g. /add 1.1.1.1)',
+        '/del <ip>': 'Delete node watch (e.g. /del 1.1.1.1)',
         '/watches': 'Get nodes\' statuses',
     }
     context.bot.send_message(
