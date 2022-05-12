@@ -40,6 +40,7 @@ class Aptos:
         self.synced: Optional[bool] = None
         self.error: Optional[str] = None
         self.logger = logging.getLogger(__name__)
+        self.out_of_sync_threshold = 10
 
     def __test_port(self, port: Optional[int]) -> bool:
         """
@@ -110,7 +111,8 @@ class Aptos:
             raise Exception(f"Sync metrics are not defined")
         synced = self.__first_or_none(m for m in sync_metrics.samples if m.labels['type'] == 'synced')
         applied = self.__first_or_none(m for m in sync_metrics.samples if m.labels['type'] == 'applied_transaction_outputs')
-        self.synced = None if not synced or not applied else synced.value == applied.value
+        # let the node be out of sync for a little bit
+        self.synced = None if not synced or not applied else abs(synced.value - applied.value) < self.out_of_sync_threshold
         
 
     def update(self):
