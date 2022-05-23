@@ -11,7 +11,7 @@ from storage import Storage
 
 class Watcher:
     """Service for updating nodes' status"""
-    def __init__(self, threads: int, storage: Storage, target: Aptos, update_frequency: timedelta = timedelta(seconds=10),
+    def __init__(self, threads: int, storage: Storage, update_frequency: timedelta = timedelta(seconds=10),
                  max_check_age: timedelta = timedelta(minutes=5)) -> None:
         """
         Initialize service
@@ -19,13 +19,11 @@ class Watcher:
         Args:
             threads (int): Number of threads to update nodes' statuses
             storage (Storage): Storage of node watches
-            target (Aptos): Node that is used as a target
             update_frequency (timedelta, optional): Waiting times between watcher ticks. Defaults to timedelta(seconds=10).
             max_check_age (timedelta, optional): Maximum node watch status age. Defaults to timedelta(minutes=5).
         """
         self.executor = ThreadPoolExecutor(max_workers=threads)
         self.storage = storage
-        self.target = target
         self.update_frequency = update_frequency
         self.max_check_age = max_check_age
         self.logger = logging.getLogger(__name__)
@@ -35,14 +33,7 @@ class Watcher:
         """Default watcher initialized using settings from environment variables"""
         return Watcher(
             threads=settings.WATCHER_THREADS, 
-            storage=Storage.default(), 
-            target=Aptos(
-                host=settings.APTOS_TARGET_HOST, 
-                proto=settings.APTOS_TARGET_PROTO, 
-                api_port=settings.APTOS_TARGET_PORT, 
-                metrics_port=None, 
-                seed_port=None
-            )
+            storage=Storage.default()
         )
 
     def __update_node_status(self, node_watch: NodeWatch):
@@ -52,10 +43,6 @@ class Watcher:
         Args:
             node_watch (NodeWatch): Node watch definition
         """
-        self.target.update()
-        if self.target.error:
-            self.logger.error(f'failed to update target node status - {self.target.error}')
-            return
         self.logger.info(f'updating node status: {node_watch.ip}')
         try:
             node = Aptos(host=node_watch.ip)
@@ -71,8 +58,6 @@ class Watcher:
 
             if not node.api_port_opened:
                 errors.append('API port is closed')
-            elif node.chain_id and node.chain_id != self.target.chain_id:
-                errors.append('Node is out of date. Update it')
             
             errors.sort()
 
