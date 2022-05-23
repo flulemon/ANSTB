@@ -110,7 +110,7 @@ class Aptos:
         if not sync_metrics:
             raise Exception(f"Sync metrics are not defined")
         synced = self.__first_or_none(m for m in sync_metrics.samples if m.labels['type'] == 'synced')
-        applied = self.__first_or_none(m for m in sync_metrics.samples if m.labels['type'] == 'applied_transaction_outputs')
+        applied = self.__first_or_none(m for m in sync_metrics.samples if m.labels['type'] == 'executed_transactions')
         # let the node be out of sync for a little bit
         self.synced = None if not synced or not applied else abs(synced.value - applied.value) < self.out_of_sync_threshold
         
